@@ -1,6 +1,6 @@
 const mongoose=require("mongoose")
 
-mongoose.connect("mongodb://localhost:27017/mainserver",{
+mongoose.connect("mongodb://localhost:27017/main-server",{
     useNewUrlParser:true,
     useUnifiedTopology:true,
     
