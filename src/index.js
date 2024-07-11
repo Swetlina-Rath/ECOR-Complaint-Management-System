@@ -24,10 +24,9 @@ const User = require('./models/User'); // Adjust the path as per your actual fil
 
 // Set up session middleware
 app.use(session({
-    secret: 'your-secret-key',
+    secret: 'your_secret_key',
     resave: false,
-    saveUninitialized: true
-}));
+    saveUninitialized: true  }));
 
 // Set up multer for file uploads
 const storage = multer.diskStorage({
@@ -84,7 +83,10 @@ app.post('/complaints', upload.single('reference'), async (req, res) => {
             description: req.body.description,
             reference: referenceFile,
             complaintNo: counter.seq,
-            currentAdmin: '' // Initialize currentAdmin field
+            currentAdmin: '',
+            createdAt: new Date(),
+            status: 'Pending'
+
         };
 
         const newComplaint = new Complaint(complaintData);
@@ -113,12 +115,13 @@ if (!fs.existsSync(uploadsDir)) {
 // Endpoint to fetch all complaints
 app.get('/all-complaints', async (req, res) => {
     try {
-        const complaints = await Complaint.find();
+        const complaints = await Complaint.find({ status: { $ne: 'Closed' } });
         res.json(complaints);
     } catch (error) {
         res.status(500).send('Error fetching complaints');
     }
 });
+
 
 // Endpoint to fetch all complaints for a specific employeeNo
 app.get('/complaints', async (req, res) => {
@@ -246,7 +249,7 @@ app.get('/complaints/assigned/:currentAdmin', async (req, res) => {
     console.log(`Fetching complaints for admin: ${admin}`);
 
     try {
-        const complaints = await Complaint.find({ currentAdmin: admin }).exec();
+        const complaints = await Complaint.find({ currentAdmin: admin, status: { $ne: 'Closed' } }).exec();
         console.log(`Found complaints: ${JSON.stringify(complaints)}`);
         res.json(complaints);
     } catch (error) {
@@ -254,6 +257,7 @@ app.get('/complaints/assigned/:currentAdmin', async (req, res) => {
         res.status(500).send('Error fetching complaints');
     }
 });
+
 
 // Endpoint to delete a complaint by complaintNo
 app.delete('/complaints/:complaintNo', async (req, res) => {
@@ -323,8 +327,151 @@ app.get('/users', async (req, res) => {
 });
 
 
+// Routes to fetch total complaints, total admins, complaints by month, and complaints by website
+app.get('/reports/total-complaints', async (req, res) => {
+    try {
+        const totalComplaints = await Complaint.countDocuments();
+        res.json({ totalComplaints });
+    } catch (error) {
+        console.error('Error fetching total complaints:', error);
+        res.status(500).json({ error: 'Internal Server Error' });
+    }
+});
+
+app.get('/reports/total-admins', async (req, res) => {
+    try {
+        const totalAdmins = await User.countDocuments({ usertype: 'Admin' });
+        res.json({ totalAdmins });
+    } catch (error) {
+        console.error('Error fetching total admins:', error);
+        res.status(500).json({ error: 'Internal Server Error' });
+    }
+});
+
+// app.get('/reports/complaints-by-month', async (req, res) => {
+//     try {
+//         const complaintsByMonth = await Complaint.aggregate([
+//             {
+//                 $group: {
+//                     _id: { $month: "$createdAt" },
+//                     count: { $sum: 1 }
+//                 }
+//             },
+//             { $sort: { _id: 1 } }
+//         ]);
+//         res.json(complaintsByMonth);
+//     } catch (error) {
+//         console.error('Error fetching complaints by month:', error);
+//         res.status(500).json({ error: 'Internal Server Error' });
+//     }
+// });
+// Complaints by month endpoint
+app.get('/reports/complaints-by-month', async (req, res) => {
+    try {
+        const complaintsByMonth = await Complaint.aggregate([
+            {
+                $group: {
+                    _id: { $month: "$createdAt" },
+                    count: { $sum: 1 }
+                }
+            }
+        ]);
+        res.json(complaintsByMonth);
+    } catch (error) {
+        res.status(500).send('Error fetching complaints by month');
+    }
+});
+// Complaints by date range endpoint
+app.get('/reports/complaints-by-date-range', async (req, res) => {
+    const { start, end } = req.query;
+    const startDate = new Date(start);
+    const endDate = new Date(end);
+
+    try {
+        const complaints = await Complaint.find({
+            createdAt: {
+                $gte: startDate,
+                $lte: endDate
+            }
+        });
+        res.json(complaints);
+    } catch (error) {
+        res.status(500).send('Error fetching complaints by date range');
+    }
+});
+app.get('/reports/complaints-by-website', async (req, res) => {
+    try {
+        const complaintsByWebsite = await Complaint.aggregate([
+            {
+                $group: {
+                    _id: "$website",
+                    count: { $sum: 1 }
+                }
+            },
+            { $sort: { _id: 1 } }
+        ]);
+        res.json(complaintsByWebsite);
+    } catch (error) {
+        console.error('Error fetching complaints by website:', error);
+        res.status(500).json({ error: 'Internal Server Error' });
+    }
+});
+// Closed complaints endpoint
+app.get('/reports/closed-complaints', async (req, res) => {
+    try {
+        const totalClosedComplaints = await Complaint.countDocuments({ status: 'Closed' });
+        res.json({ totalClosedComplaints });
+    } catch (error) {
+        res.status(500).send('Error fetching closed complaints');
+    }
+});
+
+// Processing complaints endpoint
+app.get('/reports/processing-complaints', async (req, res) => {
+    try {
+        const totalProcessingComplaints = await Complaint.countDocuments({ status: 'Forwarded' });
+        res.json({ totalProcessingComplaints });
+    } catch (error) {
+        res.status(500).send('Error fetching processing complaints');
+    }
+});
 
 
+
+
+
+app.patch('/complaints/:complaintNo', async (req, res) => {
+    const { complaintNo } = req.params;
+    const { status, currentAdmin } = req.body;
+  
+    try {
+      const updateFields = {};
+      if (status) updateFields.status = status;
+      if (currentAdmin) updateFields.currentAdmin = currentAdmin;
+  
+      const updatedComplaint = await Complaint.findOneAndUpdate(
+        { complaintNo },
+        { $set: updateFields },
+        { new: true }
+      );
+  
+      if (!updatedComplaint) {
+        return res.status(404).json({ message: 'Complaint not found' });
+      }
+  
+      res.json(updatedComplaint);
+    } catch (error) {
+      res.status(500).json({ message: 'Error updating complaint', error });
+    }
+  });
+// Endpoint to get the current user's name
+app.get('/current-user', (req, res) => {
+    if (req.session.userName) {
+        res.json({ userName: req.session.userName });
+    } else {
+        res.status(401).json({ error: 'Not authenticated' });
+    }
+});
 
 app.listen(port, () => {
     console.log(`App listening at http://localhost:${port}`);

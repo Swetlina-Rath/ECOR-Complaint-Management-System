@@ -282,6 +282,7 @@
                       <th>Module</th>
                       <th>Description</th>
                       <th>Reference Document</th>
+                      <th>Status</th>
                     </tr>
                   </thead>
                   <tbody id="multiple-complaints-table-body">
@@ -328,6 +329,8 @@
                   <td>${complaint.module}</td>
                   <td>${complaint.description}</td>
                   <td><a href="${complaint.reference}" download>${complaint.reference}</a></td>
+                  <td>${complaint.status}</td>
+
                 </tr>`;
               multipleComplaintsTableBody.innerHTML += row;
             });
@@ -365,6 +368,10 @@
                 <tr>
                   <td>Reference Document</td>
                   <td><a href="${data.reference}" download>${data.reference}</a></td></tr>
+                <tr>
+                  <td>Status</td>
+                  <td>${data.status}</td>
+                </tr>
               </table>
               <br>`;
             complaintsContainer.innerHTML = complaintDetails;

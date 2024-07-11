@@ -8,14 +8,32 @@ body {
   margin: 0;
   overflow: hidden;
 }
+.sidebar ul li a {
+  display: block;
+  padding: 10px;
+  width: 100%;
+  height: 100%;
+  text-decoration: none;
+  color: black;
+  border: none;
+  outline: none;
+  transition: background-color 0.5s, transform 0.3s;
+  box-sizing: border-box;
+  border-radius: 7px;
+  
+}
+.sidebar ul li a:hover {
+  background-color: rgb(46, 146, 253);
+  cursor: pointer;
+  
+}
 
-.sidebar ul li.active {
-  background-color: #0a40e4;
-  /* Example color for highlighting */
-  color: #fff;
-  /* Example text color for highlighting */
-  font-weight: bold;
-  /* Example font weight for highlighting */
+.sidebar ul li a.active {
+  background-color: rgb(46, 146, 253); /* Active background color */
+  width: 100%;
+  height: 100%; /* Ensure full height */
+  color: white;
+  box-sizing: border-box;
 }
 
 header {
@@ -100,11 +118,7 @@ h2 {
   filter: brightness(1.2);
 }
 
-.sidebar ul li:hover {
-  background-color: rgb(46, 146, 253);
-  cursor: pointer;
-  transform: scale(1.05);
-}
+
 
 .sidebar a {
   text-decoration: none;
@@ -230,20 +244,15 @@ iframe {
 }
 
 .dark-mode .sidebar {
-  background-color: #7260c1;
+  background-color: #2a2a2a;
 }
 
 .dark-mode .sidebar ul li {
-  background-color: #5957eb;
+  background-color: #333333;
 }
 
 .dark-mode .sidebar a {
-  text-decoration: none;
-  color: rgb(241, 241, 241);
-}
-
-.dark-mode .sidebar ul li:hover {
-  background-color: #6705a3;
+  color: #ffffff;
 }
 
 .dark-mode #login-btn,

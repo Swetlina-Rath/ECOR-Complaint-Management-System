@@ -10,7 +10,13 @@ const complaintSchema = new mongoose.Schema({
     description: { type: String, required: true, maxlength: 2000 },
     reference: { type: String },
     complaintNo: { type: Number, required: true, unique: true }, // Ensure the database enforces this uniqueness
-    currentAdmin: { type: String, default: '' }
+    currentAdmin: { type: String, default: '' },
+    createdAt: {
+        type: Date,
+        default: Date.now
+    },
+    status: { type: String, default: 'Pending' }, // Added status field with default value 'Open'
+
 });
 
 const Complaint = mongoose.model('Complaint', complaintSchema);

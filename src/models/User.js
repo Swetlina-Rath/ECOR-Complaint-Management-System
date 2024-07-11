@@ -21,7 +21,7 @@ const userSchema = new mongoose.Schema({
     },
     usertype: {
         type: String,
-        enum: ['Admin', 'User'],
+        enum: ['Admin', 'User','SuperAdmin'],
         required: true
     }
 });

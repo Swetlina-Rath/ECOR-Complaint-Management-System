@@ -73,7 +73,10 @@
           <th>Complaint No</th>
           <th>Employee Name</th>
           <th>Module</th>
-          <th>Status</th>
+          <th>Website</th>
+          <th>Division</th>
+
+
         </tr>
       </thead>
       <tbody id="complaints-table">
@@ -101,7 +104,10 @@
                 <td><a href="/pg7.html?complaintNo=${complaint.complaintNo}">${complaint.complaintNo}</a></td>
                 <td>${complaint.employeeName}</td>
                 <td>${complaint.module}</td>
-                <td>Assigned</td>
+                <td>${complaint.website}</td>
+                <td>${complaint.divisionContact}</td>
+
+
             `;
             complaintsTable.appendChild(row);
         });

@@ -14,7 +14,12 @@ router.post('/signup', async (req, res) => {
             res.redirect('/pg5.HTML');
         } else if (usertype === 'User') {
             res.redirect('/home.HTML');
-        } else {
+        } 
+        else if (usertype === 'SuperAdmin') {
+            res.redirect('/admin.HTML');
+        }
+        
+        else {
             res.status(400).send('Invalid user type');
         }
     } catch (error) {
@@ -36,8 +41,11 @@ router.post('/login', async (req, res) => {
             if (user.usertype === 'Admin') {
                 res.redirect('/pg5.HTML'); // Redirect to admin page
             } else if (user.usertype === 'User') {
-                res.redirect('/home.HTML'); // Redirect to user page  
-            } else {
+                res.redirect('/home.HTML');
+             } // Redirect to user page 
+            else if (user.usertype === 'SuperAdmin') {
+                res.redirect('/admin.HTML'); }
+             else {
                 res.status(400).send('Invalid user type');
             }
         } else {

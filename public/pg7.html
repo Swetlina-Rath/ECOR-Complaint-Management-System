@@ -342,30 +342,36 @@
             document.getElementById('remark-text').value = '';
 
             if (isForward && selectedAdmin) {
-                // Update the currentAdmin field in the complaint
                 await fetch(`/complaints/${complaintNo}`, {
                     method: 'PATCH',
                     headers: {
                         'Content-Type': 'application/json'
                     },
-                    body: JSON.stringify({ currentAdmin: selectedAdmin })
+                    body: JSON.stringify({ currentAdmin: selectedAdmin,status: 'Forwarded' })
                 });
+
+                alert('Complaint forwarded');
+                    window.location.href = '/pg6.html';
+
+
             }
 
+            
+
             if (isClose) {
-                // Delete the complaint
-                const deleteResponse = await fetch(`/complaints/${complaintNo}`, {
-                    method: 'DELETE',
+                const updateResponse = await fetch(`/complaints/${complaintNo}`, {
+                    method: 'PATCH',
                     headers: {
                         'Content-Type': 'application/json'
-                    }
+                    },
+                    body: JSON.stringify({ status: 'Closed' })
                 });
 
-                if (deleteResponse.ok) {
-                    alert('Complaint closed and deleted');
-                    window.location.href = '/pg6.html'; // Redirect to the complaints list or another appropriate page
+                if (updateResponse.ok) {
+                    alert('Complaint status updated to Closed');
+                    window.location.href = '/pg8.html';
                 } else {
-                    alert('Failed to delete complaint');
+                    alert('Failed to update complaint status');
                 }
             }
         } else {
@@ -378,10 +384,10 @@
 });
 
 
-    window.onload = function() {
+window.onload = function() {
       fetchComplaintDetails();
       fetchAdminUsers();
-    };
+};
   </script>
 </body>
 </html>

@@ -101,7 +101,10 @@
                     <th>Website</th>
                     <th>Module</th>
                     <th>Employee Name</th>
-                    <th>Status</th>
+                    <th>Currently With</th>
+                    <th>status</th>
+
+
                 </tr>
             </thead>
             <tbody id="complaintsTableBody">
@@ -126,7 +129,10 @@
                         <td>${complaint.website}</td>
                         <td>${complaint.module}</td>
                         <td>${complaint.employeeName}</td>
+                        <td>${complaint.currentAdmin}</td>
                         <td>${complaint.status}</td>
+
+
                     `;
                     tableBody.appendChild(row);
                 });
